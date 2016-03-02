@@ -23,13 +23,16 @@ Create a Game class that manages the game state
 import Foundation
 
 class Game {
+
     
-    
-    init() {
-        isGameAlive() 
+    func isGameAlive (attackingPlayer: Player, defendingPlayer: Player) -> Bool {
+        if defendingPlayer.hp > 0 {
+            return true
+        }else {
+            return false
+        }
     }
-    
-    func isGameAlive () -> Bool {
-        return true
+       
+
+        
     }
-}

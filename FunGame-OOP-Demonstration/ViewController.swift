@@ -30,66 +30,121 @@ import UIKit
 class ViewController: UIViewController {
     
     
-    let player1: Player = Player()
-    let player2: Player = Player()
-    let currentGame: Game = Game()
-    
-    @IBAction func player1AttackBtn(sender: AnyObject) {
-      
-        hideButtons(player2btn, label: player2attacklbl)
-        
-        
-    }
-    
-    @IBAction func player2AttackBtn(sender: AnyObject) {
-        
-        hideButtons(player1btn, label: player1attackLbl)
-    }
-    
-    func hideButtons(button: UIButton, label: UILabel) {
-        button.hidden = true
-        label.hidden = true
-        
-        
-         NSTimer.scheduledTimerWithTimeInterval(3.0, target: self, selector: "showButtons", userInfo: nil, repeats: false)
-        
-    }
-    
-    func showButtons(button: UIButton, label: UILabel) {
-        
-        button.hidden = false
-        label.hidden = false
-        
-    }
-    
-    
-    func showButtons() {
-        mainMessageLbl.text = "iv"
-    }
-    
+    //Outlets
     @IBOutlet var mainMessageLbl: UILabel!
     @IBOutlet weak var player1btn: UIButton!
     @IBOutlet weak var player2btn: UIButton!
+    @IBOutlet var playAgainBtn: UIButton!
     @IBOutlet var player1attackLbl: UILabel!
     @IBOutlet var player2attacklbl: UILabel!
+    @IBOutlet var updateLabel: UILabel!
+    @IBOutlet var playAgainLbl: UILabel!
+    
+    //Initialize players and game
+    
+    var player1: Player = Player()
+    var player2: Player = Player()
+    var currentGame: Game = Game()
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        mainMessageLbl.text = "\(player1.name) vs \(player2.name)"
+        updateLabels()
+        updateMainMessageLbl("\(player1.name) vs \(player2.name)")
+        updateLabel.hidden = false
+    }
+    
+    
+    @IBAction func player1AttackBtn(sender: AnyObject) {
         
-        NSTimer.scheduledTimerWithTimeInterval(3.0, target: self, selector: "updateMainMessageLbl", userInfo: nil, repeats: false)
+        attack(player2btn, lblDefending: player2attacklbl, attackingPlayer: player1, defendingPlayer: player2)
+    }
+    
+    
+    @IBAction func player2AttackBtn(sender: AnyObject) {
+        
+        attack(player1btn, lblDefending: player1attackLbl, attackingPlayer: player2, defendingPlayer: player1)
+    }
+    
+    
+    func attack(buttonDefending: UIButton, lblDefending: UILabel, attackingPlayer: Player, defendingPlayer: Player) {
+        
+        
+        if !attackingPlayer.attemptAttack(attackingPlayer.attackPwr, defendingPlayer: defendingPlayer){
+            gameOverSequence(attackingPlayer, loser: defendingPlayer)
+          
+        }else{
+            hideButtons(buttonDefending)
+            updateLabels()
+            currentGame.isGameAlive(attackingPlayer, defendingPlayer: defendingPlayer)
+        }
+    }
+    
+    
+    func hideButtons(button: UIButton) {
+        button.enabled = false
+        
+        NSTimer.scheduledTimerWithTimeInterval(3.0, target: self, selector: "enableButtons", userInfo: nil, repeats: false)
         
     }
     
-    func updateMainMessageLbl(){
-        if currentGame.isGameAlive() {
-            mainMessageLbl.text = "Click attack to play!"
-        }
+    
+    func showButtons() {
+        
+        player1btn.hidden = false
+        player1attackLbl.hidden = false
+        player2btn.hidden = false
+        player2attacklbl.hidden = false
+        
+    }
+    
+    func enableButtons(){
+        player1btn.enabled = true
+        player2btn.enabled = true
+    }
+    
+    
+    
+    func updateMainMessageLbl(message: String){
+        mainMessageLbl.text = message
         
         
+    }
+    
+    func hideAllButtons(){
         
+        player1attackLbl.hidden = true
+        player1btn.hidden = true
+        player2attacklbl.hidden = true
+        player2btn.hidden = true
+        updateLabel.hidden = true
+    }
+    
+    func updateLabels() {
+        updateLabel.text = "Player1 Name: \(player1.name)\nPlayer1 HP: \(player1.hp)\nPlayer1 AttPwr: \(player1.attackPwr)\n\nPlayer2 Name: \(player2.name)\nPlayer2 HP: \(player2.hp)\nPlayer2 AttPwr: \(player2.attackPwr)\n"
+        
+    }
+    
+    func gameOverSequence(winner: Player, loser: Player) {
+        
+        hideAllButtons()
+        playAgainBtn.hidden = false
+        playAgainLbl.hidden = false
+        updateMainMessageLbl("Winner: \(winner.name)")
+        
+        
+    }
+    
+    @IBAction func playAgainBtn(sender: AnyObject) {
+        
+        playAgainBtn.hidden = true
+        playAgainLbl.hidden = true
+        player1 = Player()
+        player2 = Player()
+        currentGame = Game()
+        showButtons()
+        viewDidLoad()
     }
 }
 
